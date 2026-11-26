@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TriviaCraft · Interactive Mobile UI Prototype</title>
+
+  <!-- Load Tailwind CSS for layout utilities -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Load Google Fonts: 'Press Start 2P' for pixel headings/buttons & 'VT323' for retro pixel terminal text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ==========================================================================
+       TRIVIACRAFT PIXEL DESIGN SYSTEM TOKENS & BASE STYLES
+       ========================================================================== */
+    :root {
+      --bg-studio: #111116;
+      --bg-screen: #1A1B24;
+      --bg-card: #232532;
+      --bg-input: #13141B;
+      --border-dark: #0b0c10;
+
+      /* Palette Colors */
+      --pixel-green: #62A83B;
+      --pixel-green-btn: #4E9A2D;
+      --pixel-green-hi: #76CC4E;
+      --pixel-green-lo: #356E1D;
+
+      --pixel-yellow: #F2C438;
+      --pixel-yellow-hi: #FFE27A;
+      --pixel-yellow-lo: #B58616;
+
+      --pixel-gray-btn: #6E717C;
+      --pixel-gray-hi: #9094A1;
+      --pixel-gray-lo: #474A52;
+
+      --pixel-red-btn: #C93B2B;
+      --pixel-red-hi: #E85C4C;
+      --pixel-red-lo: #872116;
+
+      --text-muted: #9A9EAE;
+      --text-subtle: #6E7282;
+    }
+
+    /* Nether Crimson Theme Overrides when toggled in Settings */
+    .theme-nether {
+      --bg-screen: #1E1216;
+      --bg-card: #2B1920;
+      --bg-input: #140B0E;
+      --pixel-green: #E04856;
+      --pixel-green-btn: #B82534;
+      --pixel-green-hi: #F46270;
+      --pixel-green-lo: #78131E;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-studio);
+      font-family: 'VT323', monospace;
+      color: #f4f4f6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+    }
+
+    .font-pixel {
+      font-family: 'Press Start 2P', monospace;
+      letter-spacing: 0.04em;
+    }
+
+    .font-vt {
+      font-family: 'VT323', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    /* ==========================================================================
+       MOBILE DEVICE FRAME (380PX WIDTH, CENTERED ON #111116 STUDIO BACKDROP)
+       ========================================================================== */
+    .phone-frame {
+      width: 380px;
+      max-width: calc(100vw - 24px);
+      height: 740px;
+      max-height: calc(100vh - 108px);
+      min-height: 610px;
+      background-color: var(--bg-screen);
+      border: 3px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #2b2d3b,
+        inset -2px -2px 0px #0e0f14,
+        0 28px 60px -12px rgba(0, 0, 0, 0.82),
+        0 0 0 1px #252734;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.25s ease;
+    }
+
+    /* Custom slim dark scrollbar inside phone viewport */
+    .screen-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #343746 transparent;
+    }
+    .screen-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .screen-scroll::-webkit-scrollbar-thumb {
+      background-color: #343746;
+    }
+
+    /* ==========================================================================
+       BEVELED 3D PIXEL BUTTONS, BADGES & INPUTS (SHARP 0PX RADIUS)
+       ========================================================================== */
+    .pixel-btn {
+      border-radius: 0px;
+      border: 2px solid #0b0c10;
+      font-family: 'Press Start 2P', monospace;
+      color: #ffffff;
+      text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.68);
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.06s ease, filter 0.12s ease;
+      position: relative;
+    }
+
+    .pixel-btn:hover {
+      filter: brightness(1.07);
+    }
+
+    .pixel-btn:active {
+      transform: translateY(2px);
+    }
+
+    /* Primary Green Beveled Button (#4E9A2D) */
+    .pixel-btn-green {
+      background-color: var(--pixel-green-btn);
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-green-hi),
+        inset -2px -2px 0px var(--pixel-green-lo),
+        0 3px 0px #0b0c10;
+    }
+    .pixel-btn-green:active {
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-green-lo),
+        inset -2px -2px 0px var(--pixel-green-hi);
+    }
+
+    /* Secondary Gray Beveled Button (#6E717C) */
+    .pixel-btn-gray {
+      background-color: var(--pixel-gray-btn);
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-gray-hi),
+        inset -2px -2px 0px var(--pixel-gray-lo),
+        0 3px 0px #0b0c10;
+    }
+    .pixel-btn-gray:active {
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-gray-lo),
+        inset -2px -2px 0px var(--pixel-gray-hi);
+    }
+
+    /* Yellow Accent Beveled Button (#F2C438) */
+    .pixel-btn-yellow {
+      background-color: var(--pixel-yellow);
+      color: #15161c;
+      text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.45);
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-yellow-hi),
+        inset -2px -2px 0px var(--pixel-yellow-lo),
+        0 3px 0px #0b0c10;
+    }
+    .pixel-btn-yellow:active {
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-yellow-lo),
+        inset -2px -2px 0px var(--pixel-yellow-hi);
+    }
+
+    /* Red Danger Beveled Button */
+    .pixel-btn-red {
+      background-color: var(--pixel-red-btn);
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-red-hi),
+        inset -2px -2px 0px var(--pixel-red-lo),
+        0 3px 0px #0b0c10;
+    }
+    .pixel-btn-red:active {
+      box-shadow:
+        inset 2px 2px 0px var(--pixel-red-lo),
+        inset -2px -2px 0px var(--pixel-red-hi);
+    }
+
+    /* Recessed Dark Pixel Input */
+    .pixel-input {
+      width: 100%;
+      background-color: var(--bg-input);
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #060709,
+        inset -2px -2px 0px #2b2e3b;
+      color: #eceef5;
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      letter-spacing: 0.03em;
+      padding: 8px 12px;
+      outline: none;
+      border-radius: 0px;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .pixel-input::placeholder {
+      color: #65697a;
+    }
+
+    .pixel-input:focus {
+      box-shadow:
+        inset 2px 2px 0px #060709,
+        inset -2px -2px 0px var(--pixel-green);
+    }
+
+    /* Dark Pixel Card Container */
+    .pixel-card {
+      background-color: var(--bg-card);
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 1px 1px 0px #313445,
+        0 3px 0px #0b0c10;
+      border-radius: 0px;
+    }
+
+    /* Beveled Square Icon Blocks */
+    .pixel-block-green {
+      background-color: #4b8b2b;
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #6ec244,
+        inset -2px -2px 0px #2f5c19;
+    }
+
+    .pixel-block-blue {
+      background-color: #2b6cb0;
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #4c94e0,
+        inset -2px -2px 0px #1a4370;
+    }
+
+    .pixel-block-purple {
+      background-color: #7b3fa0;
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #a35ed0,
+        inset -2px -2px 0px #4d2466;
+    }
+
+    .pixel-block-red {
+      background-color: #c93b2b;
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #e85c4c,
+        inset -2px -2px 0px #872116;
+    }
+
+    .pixel-block-orange {
+      background-color: #d97724;
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #f59b4c,
+        inset -2px -2px 0px #944b0e;
+    }
+
+    /* Quiz Answer Option Beveled Row */
+    .quiz-option {
+      width: 100%;
+      background-color: #292b38;
+      border: 2px solid #0b0c10;
+      box-shadow:
+        inset 2px 2px 0px #3c3f52,
+        inset -2px -2px 0px #181921,
+        0 3px 0px #0b0c10;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.06s ease, background-color 0.12s ease;
+    }
+
+    .quiz-option:hover {
+      background-color: #323545;
+    }
+
+    .quiz-option:active {
+      transform: translateY(2px);
+    }
+
+    .quiz-option.selected-correct {
+      background-color: #3f7823;
+      box-shadow:
+        inset 2px 2px 0px #5ea838,
+        inset -2px -2px 0px #264a14,
+        0 3px 0px #0b0c10;
+    }
+
+    .quiz-option.selected-wrong {
+      background-color: #8f291e;
+      box-shadow:
+        inset 2px 2px 0px #c44133,
+        inset -2px -2px 0px #57160f,
+        0 3px 0px #0b0c10;
+    }
+
+    /* Smooth Screen Fade/Slide Entrance */
+    @keyframes pixelScreenEnter {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .screen-animate {
+      animation: pixelScreenEnter 0.18s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* ==========================================================================
+       TREASURE CHEST LOGO & SPARKLE ANIMATIONS
+       ========================================================================== */
+    @keyframes chestGentleFloat {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-3px);
+      }
+    }
+
+    .chest-idle {
+      animation: chestGentleFloat 2.8s ease-in-out infinite;
+    }
+
+    @keyframes chestHopAction {
+      0% {
+        transform: translateY(0px) scale(1, 1);
+      }
+      22% {
+        transform: translateY(3px) scale(1.07, 0.92);
+      }
+      52% {
+        transform: translateY(-13px) scale(0.95, 1.06);
+      }
+      78% {
+        transform: translateY(-2px) scale(1.02, 0.98);
+      }
+      100% {
+        transform: translateY(0px) scale(1, 1);
+      }
+    }
+
+    .chest-hop {
+      transform-origin: bottom center;
+      animation: chestHopAction 0.48s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes sparkleTwinkle {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.35;
+        transform: scale(0.72);
+      }
+    }
+
+    .sparkle-a {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: sparkleTwinkle 1.7s steps(2) infinite;
+    }
+
+    .sparkle-b {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: sparkleTwinkle 2.1s steps(2) 0.6s infinite;
+    }
+
+    .sparkle-c {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: sparkleTwinkle 1.5s steps(2) 1.1s infinite;
+    }
+
+    /* Stacked Pixel Title Typography Styling matching reference artwork */
+    .logo-word-trivia {
+      font-family: 'Press Start 2P', monospace;
+      color: #F2C438;
+      text-shadow:
+        -2px -2px 0 #0b0c10,
+         2px -2px 0 #0b0c10,
+        -2px  2px 0 #0b0c10,
+         2px  2px 0 #0b0c10,
+         0px  4px 0 #0b0c10;
+    }
+
+    .logo-word-craft {
+      font-family: 'Press Start 2P', monospace;
+      color: #62A83B;
+      text-shadow:
+        -2px -2px 0 #0b0c10,
+         2px -2px 0 #0b0c10,
+        -2px  2px 0 #0b0c10,
+         2px  2px 0 #0b0c10,
+         0px  4px 0 #0b0c10;
+    }
+
+    /* ==========================================================================
+       ADORABLE PIXEL-ART 'CUTIE OBJECTS' ANIMATIONS
+       ========================================================================== */
+    .cute-disabled .cutie-actor,
+    .cute-disabled #ambientParticlesLayer {
+      display: none !important;
+    }
+
+    .cute-disabled .chest-idle,
+    .cute-disabled .sparkle-a,
+    .cute-disabled .sparkle-b,
+    .cute-disabled .sparkle-c {
+      animation: none !important;
+    }
+
+    /* Pip the Slime: Squash-and-stretch bouncy hop along grass & cards */
+    @keyframes slimeSquashHop {
+      0%, 100% {
+        transform: translateY(0px) scaleX(1.06) scaleY(0.92);
+      }
+      18% {
+        transform: translateY(1px) scaleX(1.16) scaleY(0.82);
+      }
+      45% {
+        transform: translateY(-12px) scaleX(0.88) scaleY(1.14);
+      }
+      72% {
+        transform: translateY(-3px) scaleX(0.96) scaleY(1.04);
+      }
+      86% {
+        transform: translateY(1px) scaleX(1.12) scaleY(0.88);
+      }
+    }
+
+    .slime-hop {
+      transform-origin: bottom center;
+      animation: slimeSquashHop 1.75s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+    }
+
+    @keyframes pixelEyeBlink {
+      0%, 90%, 100% {
+        transform: scaleY(1);
+      }
+      94%, 97% {
+        transform: scaleY(0.12);
+      }
+    }
+
+    .slime-eyes {
+      transform-origin: center 9px;
+      animation: pixelEyeBlink 3.6s infinite;
+    }
+
+    /* Pip Quiz Reactions: Cheer, Nervous, Wobble */
+    @keyframes slimeCheerJump {
+      0%, 100% {
+        transform: translateY(0) scaleX(1.1) scaleY(0.9);
+      }
+      40% {
+        transform: translateY(-16px) scaleX(0.86) scaleY(1.18) rotate(-4deg);
+      }
+      75% {
+        transform: translateY(-5px) scaleX(0.95) scaleY(1.05) rotate(4deg);
+      }
+    }
+
+    .slime-cheer {
+      transform-origin: bottom center;
+      animation: slimeCheerJump 0.65s ease-in-out infinite;
+    }
+
+    @keyframes slimeNervousShake {
+      0%, 100% {
+        transform: translateX(0px) scaleX(1.04) scaleY(0.95);
+      }
+      25% {
+        transform: translateX(-2px) scaleX(0.98) scaleY(1.02);
+      }
+      75% {
+        transform: translateX(2px) scaleX(0.98) scaleY(1.02);
+      }
+    }
+
+    .slime-nervous {
+      transform-origin: bottom center;
+      animation: slimeNervousShake 0.24s linear infinite;
+    }
+
+    @keyframes slimeDizzyWobble {
+      0%, 100% {
+        transform: rotate(0deg) scaleX(1.08) scaleY(0.92);
+      }
+      25% {
+        transform: rotate(-10deg) translateX(-3px);
+      }
+      75% {
+        transform: rotate(10deg) translateX(3px);
+      }
+    }
+
+    .slime-wobble {
+      transform-origin: bottom center;
+      animation: slimeDizzyWobble 0.45s ease-in-out infinite;
+    }
+
+    @keyframes sweatDropFall {
+      0% {
+        opacity: 0;
+        transform: translateY(-2px);
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+    }
+
+    .sweat-drop {
+      animation: sweatDropFall 0.9s linear infinite;
+    }
+
+    /* Buzzy the Pixel Bumblebee: Figure-eight loop + fast flapping wings */
+    @keyframes beeFigureEight {
+      0% {
+        transform: translate(0px, 0px) scaleX(1);
+      }
+      12% {
+        transform: translate(15px, -5px) scaleX(1);
+      }
+      25% {
+        transform: translate(26px, 0px) scaleX(1);
+      }
+      38% {
+        transform: translate(15px, 5px) scaleX(-1);
+      }
+      50% {
+        transform: translate(0px, 0px) scaleX(-1);
+      }
+      62% {
+        transform: translate(-15px, -5px) scaleX(-1);
+      }
+      75% {
+        transform: translate(-26px, 0px) scaleX(-1);
+      }
+      88% {
+        transform: translate(-15px, 5px) scaleX(1);
+      }
+      100% {
+        transform: translate(0px, 0px) scaleX(1);
+      }
+    }
+
+    .bee-patrol {
+      animation: beeFigureEight 5.2s ease-in-out infinite;
+    }
+
+    @keyframes beeWingFlap {
+      0%, 100% {
+        transform: scaleY(1) translateY(0px);
+      }
+      50% {
+        transform: scaleY(0.35) translateY(2px);
+      }
+    }
+
+    .bee-wings {
+      transform-origin: center 5px;
+      animation: beeWingFlap 0.14s steps(2) infinite;
+    }
+
+    /* Peep the Pixel Baby Chick: Cheerful waddle & hop */
+    @keyframes chickWaddleHop {
+      0%, 100% {
+        transform: translateY(0px) rotate(-4deg);
+      }
+      25% {
+        transform: translateY(-4px) rotate(0deg);
+      }
+      50% {
+        transform: translateY(0px) rotate(4deg);
+      }
+      75% {
+        transform: translateY(-4px) rotate(0deg);
+      }
+    }
+
+    .chick-waddle {
+      transform-origin: bottom center;
+      animation: chickWaddleHop 0.85s steps(2) infinite;
+    }
+
+    /* Ambient Upward-Drifting Collectibles (Coins, Hearts, Stars, Sparkles) */
+    @keyframes ambientFloatUp {
+      0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.8);
+      }
+      15% {
+        opacity: 0.72;
+      }
+      80% {
+        opacity: 0.65;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-185px) scale(1.05);
+      }
+    }
+
+    .ambient-collectible {
+      position: absolute;
+      pointer-events: none;
+      animation: ambientFloatUp linear forwards;
+    }
+
+    /* Interactive Tap/Click Burst Particle */
+    @keyframes burstFlyOut {
+      0% {
+        opacity: 1;
+        transform: translate(0px, 0px) scale(0.8);
+      }
+      65% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(1.18);
+      }
+    }
+
+    .burst-particle {
+      position: absolute;
+      pointer-events: none;
+      z-index: 60;
+      animation: burstFlyOut 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       OUTER STUDIO HEADER CAPTION (DYNAMIC SCREEN TITLE)
+       ======================================================================== -->
+  <header class="w-full max-w-[380px] px-1 mb-2 flex items-center justify-between text-sm text-gray-400">
+    <span id="studioCaption" class="font-vt text-lg tracking-wide text-gray-300">
+      TriviaCraft &middot; Start
+    </span>
+    <button
+      id="resetStartBtn"
+      onclick="navigateTo('start')"
+      class="font-vt text-base text-gray-400 hover:text-[#F2C438] underline decoration-dotted cursor-pointer transition-colors"
+      title="Reset prototype to Start screen"
+    >
+      Reset to Start
+    </button>
+  </header>
+
+  <!-- ========================================================================
+       MOBILE DEVICE FRAME (380PX WIDTH, #1A1B24 SCREEN SURFACE)
+       ======================================================================== -->
+  <main id="phoneFrame" class="phone-frame" aria-label="TriviaCraft Mobile App Prototype">
+
+    <!-- AMBIENT FLOATING CUTIE COLLECTIBLES LAYER -->
+    <div id="ambientParticlesLayer" class="pointer-events-none absolute inset-0 z-10 overflow-hidden"></div>
+
+    <!-- INTERACTIVE TAP/CLICK BURST PARTICLES LAYER -->
+    <div id="burstParticlesLayer" class="pointer-events-none absolute inset-0 z-50 overflow-hidden"></div>
+
+    <!-- 36px TOP PIXEL GRASS-AND-DIRT BANNER + CUTIE MASCOTS -->
+    <div class="relative w-full h-[36px] shrink-0 select-none border-b-2 border-[#0b0c10] z-20">
+      <div id="topGrassBanner" class="w-full h-full"></div>
+
+      <!-- Hopping Pixel Slime Pet ('Pip') perched along the top grass banner -->
+      <button
+        id="bannerPipBtn"
+        type="button"
+        onclick="petMascot(event, 'Pip')"
+        title="Tap Pip the Slime!"
+        aria-label="Tap Pip the Slime"
+        class="cutie-actor slime-hop absolute left-[30px] -bottom-[2px] z-30 cursor-pointer focus:outline-none p-0 bg-transparent border-0"
+      >
+        <div id="bannerPipSprite"></div>
+      </button>
+
+      <!-- Buzzing Pixel Bumblebee ('Buzzy') patrolling near the top-right grass edge -->
+      <button
+        id="bannerBuzzyBtn"
+        type="button"
+        onclick="petMascot(event, 'Buzzy')"
+        title="Tap Buzzy the Bee!"
+        aria-label="Tap Buzzy the Bee"
+        class="cutie-actor bee-patrol absolute right-[52px] top-[2px] z-30 cursor-pointer focus:outline-none p-0 bg-transparent border-0"
+      >
+        <div id="bannerBuzzySprite"></div>
+      </button>
+    </div>
+
+    <!-- DYNAMIC SCREEN CONTENT CONTAINER -->
+    <div id="screenContainer" class="screen-scroll flex flex-col relative z-20">
+      <!-- Active screen HTML is injected cleanly here -->
+    </div>
+
+    <!-- IN-PHONE PIXEL TOAST NOTIFICATION (REPLACES ALERT/CONFIRM) -->
+    <div
+      id="pixelToast"
+      class="pointer-events-none opacity-0 transition-opacity duration-150 absolute bottom-4 left-4 right-4 z-50 bg-[#101118] border-2 border-[#F2C438] px-3 py-2 shadow-lg flex items-center justify-between"
+    >
+      <span id="pixelToastText" class="font-vt text-lg leading-none text-[#F2C438]"></span>
+      <span class="font-pixel text-[8px] text-[#62A83B]">OK</span>
+    </div>
+
+    <!-- IN-PHONE DELETE CONFIRMATION BAR (NO BROWSER POPUPS) -->
+    <div
+      id="deleteConfirmModal"
+      class="hidden absolute inset-0 z-40 bg-black/75 flex items-center justify-center p-5"
+    >
+      <div class="pixel-card w-full p-4 bg-[#1d1f2a] border-2 border-[#0b0c10]">
+        <h3 class="font-pixel text-[10px] text-[#e85c4c] mb-2">DELETE DECK?</h3>
+        <p id="deleteConfirmMessage" class="font-vt text-xl text-gray-200 leading-tight mb-4">
+          Remove this deck from your chest?
+        </p>
+        <div class="flex gap-2">
+          <button
+            onclick="confirmDeleteDeck()"
+            class="pixel-btn pixel-btn-red flex-1 py-2.5 text-[9px]"
+          >
+            DELETE
+          </button>
+          <button
+            onclick="closeDeleteConfirm()"
+            class="pixel-btn pixel-btn-gray flex-1 py-2.5 text-[9px]"
+          >
+            CANCEL
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN-PHONE CREATE/EDIT DECK MODAL (NO BROWSER POPUPS) -->
+    <div
+      id="deckModal"
+      class="hidden absolute inset-0 z-40 bg-black/75 flex items-center justify-center p-5"
+    >
+      <div class="pixel-card w-full p-4 bg-[#1d1f2a] border-2 border-[#0b0c10]">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#2e313d]">
+          <h3 id="deckModalTitle" class="font-pixel text-[10px] text-[#F2C438]">NEW DECK</h3>
+          <button
+            onclick="closeDeckModal()"
+            class="pixel-btn pixel-btn-gray px-2 py-1 text-[9px]"
+          >
+            X
+          </button>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <label class="block font-pixel text-[8px] text-[#d0d3de] mb-1.5">DECK NAME</label>
+            <input
+              id="deckNameInput"
+              type="text"
+              placeholder="e.g. Redstone Logic"
+              class="pixel-input"
+            />
+          </div>
+          <div>
+            <label class="block font-pixel text-[8px] text-[#d0d3de] mb-1.5">CATEGORY</label>
+            <input
+              id="deckCategoryInput"
+              type="text"
+              placeholder="e.g. Engineering"
+              class="pixel-input"
+            />
+          </div>
+          <div class="flex gap-2 pt-2">
+            <button
+              onclick="saveDeckFromModal()"
+              class="pixel-btn pixel-btn-green flex-1 py-2.5 text-[9px]"
+            >
+              SAVE DECK
+            </button>
+            <button
+              onclick="closeDeckModal()"
+              class="pixel-btn pixel-btn-gray px-3 py-2.5 text-[9px]"
+            >
+              CANCEL
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       NON-INTRUSIVE STEP INDICATOR BAR OUTSIDE PHONE FRAME
+       ======================================================================== -->
+  <nav
+    aria-label="Prototype Screen Switcher"
+    class="mt-3 flex flex-wrap items-center justify-center gap-1.5 px-2 max-w-[400px]"
+  >
+    <button
+      data-nav="start"
+      onclick="navigateTo('start')"
+      class="step-pill px-2.5 py-0.5 font-vt text-base rounded border transition-all cursor-pointer"
+    >
+      1. Start
+    </button>
+    <button
+      data-nav="settings"
+      onclick="navigateTo('settings')"
+      class="step-pill px-2.5 py-0.5 font-vt text-base rounded border transition-all cursor-pointer"
+    >
+      2. Settings
+    </button>
+    <button
+      data-nav="login"
+      onclick="navigateTo('login')"
+      class="step-pill px-2.5 py-0.5 font-vt text-base rounded border transition-all cursor-pointer"
+    >
+      3. Login
+    </button>
+    <button
+      data-nav="decks"
+      onclick="navigateTo('decks')"
+      class="step-pill px-2.5 py-0.5 font-vt text-base rounded border transition-all cursor-pointer"
+    >
+      4. My Decks
+    </button>
+    <button
+      data-nav="quiz"
+      onclick="navigateTo('quiz')"
+      class="step-pill px-2.5 py-0.5 font-vt text-base rounded border transition-all cursor-pointer"
+    >
+      5. Quiz
+    </button>
+  </nav>
+
+  <!-- ========================================================================
+       APPLICATION STATE, TREASURE CHEST LOGO SVG, CUTIE ENGINE & SCREENS
+       ======================================================================== -->
+  <script>
+    /**
+     * Global Application State for TriviaCraft Prototype
+     */
+    const appState = {
+      currentScreen: 'start', // 'start' | 'settings' | 'login' | 'decks' | 'quiz'
+      authMode: 'login',      // 'login' | 'signup'
+      email: '',
+      pendingDeleteId: null,
+      editingDeckId: null,
+      settings: {
+        cuteAnimations: true,  // Cute Pets & Animations (ON / OFF)
+        soundEffects: true,    // Sound Effects 8-Bit (ON / OFF)
+        questionTimer: 15,     // 10 | 15 | 20 seconds
+        themeMode: 'overworld' // 'overworld' | 'nether'
+      },
+      decks: [
+        {
+          id: 'android',
+          letter: 'A',
+          badgeClass: 'pixel-block-green',
+          title: 'Android Basics',
+          category: 'Programming',
+          count: 10,
+          bestScore: 80
+        },
+        {
+          id: 'world',
+          letter: 'W',
+          badgeClass: 'pixel-block-blue',
+          title: 'World Wonders',
+          category: 'Geography',
+          count: 12,
+          bestScore: 100
+        },
+        {
+          id: 'science',
+          letter: 'S',
+          badgeClass: 'pixel-block-purple',
+          title: 'Science Lab',
+          category: 'Science',
+          count: 8,
+          bestScore: 60
+        }
+      ],
+      quiz: {
+        activeDeckId: 'android',
+        activeDeckTitle: 'Android Basics',
+        questionIndex: 0,
+        totalQuestions: 5,
+        score: 0,
+        timeLeftBlocks: 10,
+        selectedOption: null,
+        lastAnswerCorrect: null,
+        timerInterval: null,
+        activeQuestions: []
+      }
+    };
+
+    /**
+     * Curated Deck Question Banks so every deck is genuinely playable
+     */
+    const questionBanks = {
+      android: [
+        {
+          text: 'Which callback runs right before an Activity becomes visible?',
+          options: [
+            { key: 'A', label: 'onCreate()', color: 'pixel-block-red' },
+            { key: 'B', label: 'onStart()', color: 'pixel-block-blue' },
+            { key: 'C', label: 'onPause()', color: 'pixel-block-purple' },
+            { key: 'D', label: 'onDestroy()', color: 'pixel-block-orange' }
+          ],
+          correct: 'B'
+        },
+        {
+          text: 'Which file declares app permissions and components in Android?',
+          options: [
+            { key: 'A', label: 'build.gradle', color: 'pixel-block-red' },
+            { key: 'B', label: 'AndroidManifest.xml', color: 'pixel-block-blue' },
+            { key: 'C', label: 'MainActivity.kt', color: 'pixel-block-purple' },
+            { key: 'D', label: 'strings.xml', color: 'pixel-block-orange' }
+          ],
+          correct: 'B'
+        },
+        {
+          text: 'Which Jetpack component survives configuration changes like rotation?',
+          options: [
+            { key: 'A', label: 'ViewModel', color: 'pixel-block-red' },
+            { key: 'B', label: 'Intent', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Toast', color: 'pixel-block-purple' },
+            { key: 'D', label: 'BroadcastReceiver', color: 'pixel-block-orange' }
+          ],
+          correct: 'A'
+        },
+        {
+          text: 'What Kotlin keyword launches a coroutine without blocking the thread?',
+          options: [
+            { key: 'A', label: 'suspend', color: 'pixel-block-red' },
+            { key: 'B', label: 'launch', color: 'pixel-block-blue' },
+            { key: 'C', label: 'inline', color: 'pixel-block-purple' },
+            { key: 'D', label: 'sealed', color: 'pixel-block-orange' }
+          ],
+          correct: 'B'
+        },
+        {
+          text: 'Which Jetpack library simplifies local SQLite database storage?',
+          options: [
+            { key: 'A', label: 'Retrofit', color: 'pixel-block-red' },
+            { key: 'B', label: 'Glide', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Room', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Hilt', color: 'pixel-block-orange' }
+          ],
+          correct: 'C'
+        }
+      ],
+      world: [
+        {
+          text: 'Which ancient wonder was located in the city of Alexandria?',
+          options: [
+            { key: 'A', label: 'Hanging Gardens', color: 'pixel-block-red' },
+            { key: 'B', label: 'Great Lighthouse', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Colossus of Rhodes', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Temple of Artemis', color: 'pixel-block-orange' }
+          ],
+          correct: 'B'
+        },
+        {
+          text: 'Which mountain range separates Europe from Asia?',
+          options: [
+            { key: 'A', label: 'The Alps', color: 'pixel-block-red' },
+            { key: 'B', label: 'The Andes', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Ural Mountains', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Carpathians', color: 'pixel-block-orange' }
+          ],
+          correct: 'C'
+        },
+        {
+          text: 'In which country is the ancient rock-cut city of Petra located?',
+          options: [
+            { key: 'A', label: 'Jordan', color: 'pixel-block-red' },
+            { key: 'B', label: 'Egypt', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Morocco', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Oman', color: 'pixel-block-orange' }
+          ],
+          correct: 'A'
+        },
+        {
+          text: 'Which river carries the largest volume of water on Earth?',
+          options: [
+            { key: 'A', label: 'Nile River', color: 'pixel-block-red' },
+            { key: 'B', label: 'Yangtze River', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Mississippi River', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Amazon River', color: 'pixel-block-orange' }
+          ],
+          correct: 'D'
+        },
+        {
+          text: 'Which archipelago nation is home to over 17,000 islands?',
+          options: [
+            { key: 'A', label: 'Philippines', color: 'pixel-block-red' },
+            { key: 'B', label: 'Indonesia', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Japan', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Maldives', color: 'pixel-block-orange' }
+          ],
+          correct: 'B'
+        }
+      ],
+      science: [
+        {
+          text: 'What is the chemical symbol for the element Gold?',
+          options: [
+            { key: 'A', label: 'Ag', color: 'pixel-block-red' },
+            { key: 'B', label: 'Au', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Gd', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Go', color: 'pixel-block-orange' }
+          ],
+          correct: 'B'
+        },
+        {
+          text: 'Which planet in our solar system has the shortest day?',
+          options: [
+            { key: 'A', label: 'Mercury', color: 'pixel-block-red' },
+            { key: 'B', label: 'Mars', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Jupiter', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Neptune', color: 'pixel-block-orange' }
+          ],
+          correct: 'C'
+        },
+        {
+          text: 'What organelle is known as the powerhouse of eukaryotic cells?',
+          options: [
+            { key: 'A', label: 'Mitochondrion', color: 'pixel-block-red' },
+            { key: 'B', label: 'Ribosome', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Golgi Body', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Lysosome', color: 'pixel-block-orange' }
+          ],
+          correct: 'A'
+        },
+        {
+          text: 'What phenomenon bends light as it passes from air into water?',
+          options: [
+            { key: 'A', label: 'Diffraction', color: 'pixel-block-red' },
+            { key: 'B', label: 'Reflection', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Polarization', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Refraction', color: 'pixel-block-orange' }
+          ],
+          correct: 'D'
+        },
+        {
+          text: 'Which gas makes up roughly 78% of Earth’s atmosphere?',
+          options: [
+            { key: 'A', label: 'Oxygen', color: 'pixel-block-red' },
+            { key: 'B', label: 'Nitrogen', color: 'pixel-block-blue' },
+            { key: 'C', label: 'Carbon Dioxide', color: 'pixel-block-purple' },
+            { key: 'D', label: 'Argon', color: 'pixel-block-orange' }
+          ],
+          correct: 'B'
+        }
+      ]
+    };
+
+    /**
+     * Web Audio API Retro 8-Bit Sound Synthesizer
+     * Includes custom 'treasure' coin chime, 'start', 'success', 'cute', 'wrong', & 'click'
+     */
+    let audioCtx = null;
+    function playPixelSound(type = 'click') {
+      if (!appState.settings.soundEffects) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+
+        const now = audioCtx.currentTime;
+        if (type === 'treasure') {
+          // Classic 8-bit coin/chest chime (B5 -> E6 -> G6)
+          osc.frequency.setValueAtTime(987.77, now);
+          osc.frequency.setValueAtTime(1318.51, now + 0.065);
+          osc.frequency.setValueAtTime(1567.98, now + 0.13);
+          gain.gain.setValueAtTime(0.065, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.28);
+        } else if (type === 'start') {
+          osc.frequency.setValueAtTime(330, now);
+          osc.frequency.setValueAtTime(440, now + 0.06);
+          osc.frequency.setValueAtTime(660, now + 0.12);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.22);
+        } else if (type === 'success') {
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(783.99, now + 0.07);
+          osc.frequency.setValueAtTime(1046.5, now + 0.14);
+          gain.gain.setValueAtTime(0.055, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.24);
+        } else if (type === 'cute') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(587.33, now);
+          osc.frequency.setValueAtTime(880, now + 0.05);
+          osc.frequency.setValueAtTime(1174.66, now + 0.1);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else if (type === 'wrong') {
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.setValueAtTime(175, now + 0.08);
+          gain.gain.setValueAtTime(0.055, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } else {
+          osc.frequency.setValueAtTime(420, now);
+          osc.frequency.setValueAtTime(280, now + 0.04);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        }
+      } catch (err) {
+        // Ignore audio errors if blocked by browser autoplay policy
+      }
+    }
+
+    /**
+     * ==========================================================================
+     * NEW CUSTOM HIGH-DETAIL PIXEL-ART TRIVIACRAFT TREASURE CHEST LOGO SVG
+     * Features:
+     *  - Subtle dark-slate pixel crown floating above
+     *  - Open gold-trimmed wooden pixel treasure chest with keyhole clasp
+     *  - Silver-blue pixel pickaxe on the left
+     *  - Bold golden-yellow pixel question mark ('?') rising from the center
+     *  - Stacks of shiny gold coins & rolled parchment scroll on the right
+     *  - Cute little green pixel slime peeking out on the top-right
+     *  - Animated twinkling 4-point golden pixel sparkles
+     * ==========================================================================
+     */
+    function getTreasureChestLogoSVG(width = 164, height = 132) {
+      const isNether = appState.settings.themeMode === 'nether';
+      const slimeMain = isNether ? '#ef4444' : '#62A83B';
+      const slimeLite = isNether ? '#fca5a5' : '#94E864';
+      const slimeDark = isNether ? '#991b1b' : '#3A731D';
+
+      return `
+        <svg
+          viewBox="0 0 48 38"
+          width="${width}"
+          height="${height}"
+          shape-rendering="crispEdges"
+          class="block mx-auto select-none drop-shadow-[0_4px_0_rgba(11,12,16,0.85)]"
+          aria-label="TriviaCraft Treasure Chest Emblem"
+        >
+          <!-- 1. SUBTLE DARK-SLATE PIXEL CROWN FLOATING ABOVE -->
+          <g opacity="0.88">
+            <rect x="23" y="1" width="2" height="1" fill="#464A5E" />
+            <rect x="19" y="2" width="1" height="1" fill="#464A5E" />
+            <rect x="22" y="2" width="4" height="1" fill="#3B3F52" />
+            <rect x="28" y="2" width="1" height="1" fill="#464A5E" />
+            <rect x="19" y="3" width="10" height="2" fill="#323546" />
+            <rect x="23" y="3" width="2" height="1" fill="#5B6078" />
+            <rect x="20" y="6" width="8" height="1" fill="#2A2D3C" />
+          </g>
+
+          <!-- 2. ANIMATED TWINKLING 4-POINT GOLDEN PIXEL SPARKLES -->
+          <!-- Left large 4-point sparkle -->
+          <g class="sparkle-a">
+            <rect x="6" y="19" width="1" height="5" fill="#FFE27A" />
+            <rect x="4" y="21" width="5" height="1" fill="#FFE27A" />
+            <rect x="6" y="21" width="1" height="1" fill="#FFFFFF" />
+          </g>
+          <!-- Bottom-left 4-point sparkle -->
+          <g class="sparkle-b">
+            <rect x="8" y="28" width="1" height="5" fill="#F2C438" />
+            <rect x="6" y="30" width="5" height="1" fill="#F2C438" />
+            <rect x="8" y="30" width="1" height="1" fill="#FFF4B8" />
+          </g>
+          <!-- Top-left mini sparkle -->
+          <g class="sparkle-c">
+            <rect x="9" y="7" width="1" height="3" fill="#F2C438" />
+            <rect x="8" y="8" width="3" height="1" fill="#F2C438" />
+          </g>
+          <!-- Top-right large 4-point sparkle -->
+          <g class="sparkle-a">
+            <rect x="40" y="7" width="1" height="5" fill="#FFE27A" />
+            <rect x="38" y="9" width="5" height="1" fill="#FFE27A" />
+            <rect x="40" y="9" width="1" height="1" fill="#FFFFFF" />
+          </g>
+          <!-- Bottom-right 4-point sparkle -->
+          <g class="sparkle-b">
+            <rect x="41" y="29" width="1" height="5" fill="#F2C438" />
+            <rect x="39" y="31" width="5" height="1" fill="#F2C438" />
+            <rect x="41" y="31" width="1" height="1" fill="#FFF4B8" />
+          </g>
+          <!-- Mid-right mini twinkle -->
+          <g class="sparkle-c">
+            <rect x="43" y="21" width="1" height="3" fill="#FFE27A" />
+            <rect x="42" y="22" width="3" height="1" fill="#FFE27A" />
+          </g>
+
+          <!-- 3. OPEN TREASURE CHEST BACK LID (GOLD-TRIMMED WOOD) -->
+          <!-- Lid dark pixel outline -->
+          <rect x="13" y="8" width="20" height="1" fill="#0b0c10" />
+          <rect x="11" y="9" width="2" height="1" fill="#0b0c10" />
+          <rect x="33" y="9" width="2" height="1" fill="#0b0c10" />
+          <rect x="10" y="10" width="1" height="9" fill="#0b0c10" />
+          <rect x="35" y="10" width="1" height="6" fill="#0b0c10" />
+          <rect x="11" y="19" width="2" height="2" fill="#0b0c10" />
+
+          <!-- Lid gold top & side trim -->
+          <rect x="13" y="9" width="20" height="2" fill="#F2C438" />
+          <rect x="14" y="9" width="18" height="1" fill="#FFE27A" />
+          <rect x="11" y="10" width="2" height="9" fill="#D99B1E" />
+          <rect x="12" y="11" width="1" height="7" fill="#F2C438" />
+          <rect x="33" y="10" width="2" height="5" fill="#D99B1E" />
+
+          <!-- Lid wooden interior & planks -->
+          <rect x="13" y="11" width="20" height="8" fill="#6E3B16" />
+          <rect x="13" y="11" width="4" height="8" fill="#9E5B24" />
+          <rect x="14" y="12" width="2" height="6" fill="#BA7132" />
+          <rect x="17" y="11" width="16" height="3" fill="#4A250C" />
+
+          <!-- 4. CUTE LITTLE GREEN PIXEL SLIME PEEKING OUT TOP-RIGHT -->
+          <g>
+            <!-- Slime outline -->
+            <rect x="33" y="11" width="5" height="1" fill="#0b0c10" />
+            <rect x="32" y="12" width="1" height="4" fill="#0b0c10" />
+            <rect x="38" y="12" width="1" height="4" fill="#0b0c10" />
+            <!-- Slime jelly body -->
+            <rect x="33" y="12" width="5" height="4" fill="${slimeMain}" />
+            <rect x="33" y="12" width="4" height="1" fill="${slimeLite}" />
+            <rect x="33" y="15" width="5" height="1" fill="${slimeDark}" />
+            <!-- Tiny sparkly eyes -->
+            <rect x="34" y="13" width="1" height="2" fill="#0b0c10" />
+            <rect x="34" y="13" width="1" height="1" fill="#FFFFFF" />
+            <rect x="36" y="13" width="1" height="2" fill="#0b0c10" />
+            <rect x="36" y="13" width="1" height="1" fill="#FFFFFF" />
+          </g>
+
+          <!-- 5. OVERFLOWING TREASURES INSIDE CHEST -->
+          <!-- A) Silver-Blue Pixel Pickaxe on the Left -->
+          <g>
+            <!-- Pickaxe dark border -->
+            <rect x="13" y="16" width="6" height="1" fill="#0b0c10" />
+            <rect x="12" y="17" width="1" height="3" fill="#0b0c10" />
+            <rect x="19" y="17" width="1" height="3" fill="#0b0c10" />
+            <!-- Silver-blue pickaxe blade -->
+            <rect x="13" y="17" width="6" height="1" fill="#BAE6FD" />
+            <rect x="12" y="18" width="2" height="1" fill="#7DD3FC" />
+            <rect x="15" y="18" width="2" height="1" fill="#38BDF8" />
+            <rect x="18" y="18" width="2" height="1" fill="#7DD3FC" />
+            <!-- Wooden handle angling into chest -->
+            <rect x="15" y="19" width="2" height="1" fill="#8C5225" />
+            <rect x="16" y="20" width="2" height="1" fill="#703E17" />
+            <rect x="17" y="21" width="2" height="1" fill="#592F0F" />
+          </g>
+
+          <!-- B) Bold Golden-Yellow Pixel Question Mark ('?') Rising Center -->
+          <g>
+            <!-- Crisp black pixel outline around '?' -->
+            <rect x="21" y="10" width="6" height="1" fill="#0b0c10" />
+            <rect x="20" y="11" width="1" height="3" fill="#0b0c10" />
+            <rect x="27" y="11" width="1" height="4" fill="#0b0c10" />
+            <rect x="21" y="14" width="2" height="1" fill="#0b0c10" />
+            <rect x="26" y="15" width="1" height="2" fill="#0b0c10" />
+            <rect x="22" y="15" width="1" height="3" fill="#0b0c10" />
+            <rect x="25" y="17" width="1" height="1" fill="#0b0c10" />
+            <rect x="22" y="18" width="3" height="1" fill="#0b0c10" />
+            <!-- Dot outline -->
+            <rect x="22" y="19" width="3" height="3" fill="#0b0c10" />
+
+            <!-- Golden '?' fill & highlight -->
+            <rect x="21" y="11" width="6" height="1" fill="#FFF08A" />
+            <rect x="21" y="12" width="2" height="2" fill="#F2C438" />
+            <rect x="25" y="12" width="2" height="3" fill="#F2C438" />
+            <rect x="23" y="15" width="3" height="1" fill="#F2C438" />
+            <rect x="23" y="16" width="2" height="2" fill="#D99B1E" />
+            <!-- Question mark dot -->
+            <rect x="23" y="20" width="1" height="1" fill="#FFE27A" />
+          </g>
+
+          <!-- C) Stacks of Shiny Gold Coins Center-Right -->
+          <g>
+            <!-- Left coin stack -->
+            <rect x="25" y="19" width="4" height="4" fill="#0b0c10" />
+            <rect x="26" y="19" width="2" height="1" fill="#FFF08A" />
+            <rect x="26" y="20" width="2" height="1" fill="#F2C438" />
+            <rect x="26" y="21" width="2" height="1" fill="#D99B1E" />
+            <rect x="26" y="22" width="2" height="1" fill="#F2C438" />
+            <!-- Right taller coin stack -->
+            <rect x="28" y="17" width="4" height="6" fill="#0b0c10" />
+            <rect x="29" y="17" width="2" height="1" fill="#FFF08A" />
+            <rect x="29" y="18" width="2" height="1" fill="#F2C438" />
+            <rect x="29" y="19" width="2" height="1" fill="#D99B1E" />
+            <rect x="29" y="20" width="2" height="1" fill="#F2C438" />
+            <rect x="29" y="21" width="2" height="1" fill="#D99B1E" />
+            <rect x="29" y="22" width="2" height="1" fill="#F2C438" />
+            <!-- Front spilled coins -->
+            <rect x="21" y="21" width="4" height="2" fill="#0b0c10" />
+            <rect x="22" y="21" width="2" height="1" fill="#FFE27A" />
+          </g>
+
+          <!-- D) Rolled Parchment Scroll on the Right -->
+          <g>
+            <rect x="32" y="16" width="6" height="6" fill="#0b0c10" />
+            <rect x="32" y="17" width="5" height="4" fill="#F5E6C8" />
+            <rect x="33" y="17" width="4" height="1" fill="#FFF9EB" />
+            <rect x="33" y="19" width="3" height="1" fill="#C9AD7F" />
+            <!-- Rolled scroll end cap -->
+            <rect x="36" y="16" width="2" height="2" fill="#D9B982" />
+            <rect x="37" y="17" width="1" height="1" fill="#7A5629" />
+          </g>
+
+          <!-- 6. LOWER TREASURE CHEST BASE BOX WITH GOLD TRIM & KEYHOLE CLASP -->
+          <!-- Outer black pixel border -->
+          <rect x="13" y="22" width="24" height="1" fill="#0b0c10" />
+          <rect x="12" y="23" width="1" height="10" fill="#0b0c10" />
+          <rect x="37" y="23" width="1" height="10" fill="#0b0c10" />
+          <rect x="13" y="33" width="8" height="1" fill="#0b0c10" />
+          <rect x="21" y="34" width="16" height="1" fill="#0b0c10" />
+
+          <!-- Left-side 3D perspective chest wall (darker wood + gold edge) -->
+          <rect x="13" y="23" width="8" height="10" fill="#8C4F1E" />
+          <rect x="13" y="23" width="2" height="10" fill="#D99B1E" />
+          <rect x="15" y="23" width="6" height="2" fill="#D99B1E" />
+          <rect x="15" y="31" width="6" height="2" fill="#B57B14" />
+          <!-- Horizontal plank seam -->
+          <rect x="15" y="28" width="6" height="1" fill="#592F0F" />
+
+          <!-- Front-facing 3D chest wall (bright wood + gold frame) -->
+          <rect x="21" y="23" width="16" height="11" fill="#B36B2B" />
+          <!-- Gold top, bottom, left, right frame bars -->
+          <rect x="21" y="23" width="16" height="2" fill="#F2C438" />
+          <rect x="22" y="23" width="14" height="1" fill="#FFE27A" />
+          <rect x="21" y="32" width="16" height="2" fill="#D99B1E" />
+          <rect x="21" y="23" width="2" height="11" fill="#F2C438" />
+          <rect x="35" y="23" width="2" height="11" fill="#D99B1E" />
+          <!-- Wooden horizontal plank lines -->
+          <rect x="23" y="28" width="12" height="1" fill="#733E14" />
+          <rect x="23" y="29" width="12" height="1" fill="#C97D38" />
+
+          <!-- Central Golden Keyhole Clasp -->
+          <rect x="27" y="23" width="5" height="6" fill="#0b0c10" />
+          <rect x="28" y="23" width="3" height="5" fill="#F2C438" />
+          <rect x="28" y="23" width="2" height="1" fill="#FFF08A" />
+          <!-- Keyhole slot -->
+          <rect x="29" y="25" width="1" height="2" fill="#0b0c10" />
+        </svg>
+      `;
+    }
+
+    /**
+     * Renders the complete interactive Treasure Chest Logo + Stacked 'TRIVIA' / 'CRAFT' Title
+     */
+    function renderTreasureLogoBlock(compact = false) {
+      if (compact) {
+        return `
+          <div class="flex flex-col items-center select-none">
+            <button
+              type="button"
+              onclick="tapTreasureChestLogo(event)"
+              title="Tap the TriviaCraft Treasure Chest!"
+              aria-label="TriviaCraft Treasure Chest Logo"
+              class="chest-idle cursor-pointer bg-transparent border-0 p-0 focus:outline-none group"
+            >
+              ${getTreasureChestLogoSVG(114, 92)}
+            </button>
+            <div class="flex items-center gap-2 -mt-1">
+              <span class="logo-word-trivia text-[14px] tracking-wider">TRIVIA</span>
+              <span class="logo-word-craft text-[14px] tracking-wider">CRAFT</span>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="flex flex-col items-center select-none">
+          <button
+            type="button"
+            onclick="tapTreasureChestLogo(event)"
+            title="Tap the TriviaCraft Treasure Chest!"
+            aria-label="TriviaCraft Treasure Chest Logo"
+            class="chest-idle cursor-pointer bg-transparent border-0 p-0 focus:outline-none"
+          >
+            ${getTreasureChestLogoSVG(172, 138)}
+          </button>
+
+          <!-- Stacked Golden 'TRIVIA' & Green 'CRAFT' Pixel Typography -->
+          <div class="flex flex-col items-center -mt-1.5 leading-none">
+            <span class="logo-word-trivia text-[22px] tracking-[0.06em]">TRIVIA</span>
+            <span class="logo-word-craft text-[22px] tracking-[0.06em] mt-1.5">CRAFT</span>
+          </div>
+
+          <!-- Subtle Pixel Bracket Accent beneath Title -->
+          <div class="w-[154px] h-[7px] border-l-2 border-r-2 border-b-2 border-[#393D4F] mt-1.5 opacity-80"></div>
+        </div>
+      `;
+    }
+
+    /**
+     * Interactive Treasure Chest Click/Tap Handler:
+     * Triggers bouncy chest-hop animation, 8-bit coin chime, and burst of gold coins, hearts & stars
+     */
+    function tapTreasureChestLogo(event) {
+      playPixelSound('treasure');
+      const btn = event && event.currentTarget;
+      if (btn) {
+        btn.classList.remove('chest-hop');
+        void btn.offsetWidth; // trigger reflow for repeated taps
+        btn.classList.add('chest-hop');
+        spawnBurstAtElement(btn, 10, ['coin', 'star', 'heart', 'coin']);
+      }
+      showPixelToast('Treasure discovered! +100 Trivia Gold!');
+    }
+
+    /**
+     * Crisp Pixel-Art SVG Assets (Grass Banner, Gear Icon, & Cutie Mascots)
+     */
+    function renderTopBannerSVG() {
+      const isNether = appState.settings.themeMode === 'nether';
+      const grassBase = isNether ? '#c92a3e' : '#58b53e';
+      const grassHi   = isNether ? '#e8485c' : '#76d658';
+      const grassLo   = isNether ? '#8f1928' : '#3e8e2b';
+      const dirtBase  = isNether ? '#4a171d' : '#7a4e2d';
+      const dirtSpeck = isNether ? '#2e0c10' : '#5e3a20';
+
+      // 8 tiled Minecraft grass blocks across 380px width
+      let tiles = '';
+      for (let i = 0; i < 8; i++) {
+        const x = i * 48;
+        const w = i === 7 ? 44 : 48;
+        tiles += `
+          <g transform="translate(${x}, 0)">
+            <rect x="0" y="0" width="${w}" height="36" fill="${dirtBase}" />
+            <rect x="6" y="25" width="6" height="5" fill="${dirtSpeck}" />
+            <rect x="20" y="29" width="7" height="4" fill="${dirtSpeck}" />
+            <rect x="34" y="24" width="6" height="5" fill="${dirtSpeck}" />
+            <rect x="12" y="32" width="5" height="4" fill="${dirtSpeck}" />
+
+            <rect x="0" y="0" width="${w}" height="19" fill="${grassBase}" />
+            <rect x="0" y="0" width="${w}" height="4" fill="${grassHi}" />
+            <rect x="8" y="7" width="8" height="4" fill="${grassHi}" />
+            <rect x="28" y="6" width="9" height="4" fill="${grassHi}" />
+
+            <rect x="0" y="19" width="9" height="4" fill="${grassBase}" />
+            <rect x="0" y="21" width="9" height="2" fill="${grassLo}" />
+
+            <rect x="15" y="19" width="11" height="6" fill="${grassBase}" />
+            <rect x="15" y="23" width="11" height="2" fill="${grassLo}" />
+
+            <rect x="31" y="19" width="8" height="4" fill="${grassBase}" />
+            <rect x="31" y="21" width="8" height="2" fill="${grassLo}" />
+
+            <rect x="5" y="15" width="6" height="4" fill="${grassLo}" />
+            <rect x="25" y="14" width="6" height="5" fill="${grassLo}" />
+
+            ${i > 0 ? `<rect x="0" y="0" width="2" height="36" fill="rgba(11,12,16,0.28)" />` : ''}
+          </g>
+        `;
+      }
+
+      document.getElementById('topGrassBanner').innerHTML = `
+        <svg viewBox="0 0 380 36" preserveAspectRatio="none" class="w-full h-full block" shape-rendering="crispEdges">
+          ${tiles}
+        </svg>
+      `;
+
+      const pipEl = document.getElementById('bannerPipSprite');
+      const buzzyEl = document.getElementById('bannerBuzzySprite');
+      if (pipEl) pipEl.innerHTML = getPipSlimeSVG('happy', 26);
+      if (buzzyEl) buzzyEl.innerHTML = getBuzzyBeeSVG(24);
+    }
+
+    function getPixelGearSVG(size = 13) {
+      return `
+        <svg viewBox="0 0 16 16" width="${size}" height="${size}" shape-rendering="crispEdges" class="shrink-0">
+          <rect x="7" y="1" width="2" height="2" fill="#ffffff" />
+          <rect x="7" y="13" width="2" height="2" fill="#ffffff" />
+          <rect x="1" y="7" width="2" height="2" fill="#ffffff" />
+          <rect x="13" y="7" width="2" height="2" fill="#ffffff" />
+          <rect x="3" y="3" width="2" height="2" fill="#ffffff" />
+          <rect x="11" y="3" width="2" height="2" fill="#ffffff" />
+          <rect x="3" y="11" width="2" height="2" fill="#ffffff" />
+          <rect x="11" y="11" width="2" height="2" fill="#ffffff" />
+          <rect x="5" y="4" width="6" height="8" fill="#ffffff" />
+          <rect x="4" y="5" width="8" height="6" fill="#ffffff" />
+          <rect x="6" y="6" width="4" height="4" fill="#474A52" />
+        </svg>
+      `;
+    }
+
+    /**
+     * 16x16 Pixel-Art Hopping Slime Pet ('Pip')
+     * Supports moods: 'happy' | 'cheer' | 'nervous' | 'dizzy'
+     */
+    function getPipSlimeSVG(mood = 'happy', size = 28) {
+      const isNether = appState.settings.themeMode === 'nether';
+      const bodyMain = isNether ? '#ef4444' : '#62A83B';
+      const bodyLite = isNether ? '#fca5a5' : '#94E864';
+      const bodyDark = isNether ? '#991b1b' : '#3A731D';
+      const coreFill = isNether ? '#b91c1c' : '#4E9A2D';
+
+      let eyesSVG = `
+        <rect x="4" y="7" width="2" height="3" fill="#0b0c10" />
+        <rect x="4" y="7" width="1" height="1" fill="#ffffff" />
+        <rect x="10" y="7" width="2" height="3" fill="#0b0c10" />
+        <rect x="10" y="7" width="1" height="1" fill="#ffffff" />
+      `;
+
+      let mouthSVG = `
+        <rect x="6" y="10" width="1" height="1" fill="#0b0c10" />
+        <rect x="7" y="11" width="2" height="1" fill="#0b0c10" />
+        <rect x="9" y="10" width="1" height="1" fill="#0b0c10" />
+      `;
+
+      let extraSVG = '';
+
+      if (mood === 'cheer') {
+        eyesSVG = `
+          <rect x="4" y="8" width="1" height="1" fill="#0b0c10" />
+          <rect x="5" y="7" width="1" height="1" fill="#0b0c10" />
+          <rect x="6" y="8" width="1" height="1" fill="#0b0c10" />
+          <rect x="9" y="8" width="1" height="1" fill="#0b0c10" />
+          <rect x="10" y="7" width="1" height="1" fill="#0b0c10" />
+          <rect x="11" y="8" width="1" height="1" fill="#0b0c10" />
+        `;
+        mouthSVG = `
+          <rect x="6" y="10" width="4" height="2" fill="#0b0c10" />
+          <rect x="7" y="11" width="2" height="1" fill="#ff7ba9" />
+        `;
+      } else if (mood === 'nervous') {
+        eyesSVG = `
+          <rect x="4" y="7" width="2" height="3" fill="#ffffff" />
+          <rect x="5" y="8" width="1" height="2" fill="#0b0c10" />
+          <rect x="10" y="7" width="2" height="3" fill="#ffffff" />
+          <rect x="10" y="8" width="1" height="2" fill="#0b0c10" />
+        `;
+        mouthSVG = `
+          <rect x="6" y="11" width="1" height="1" fill="#0b0c10" />
+          <rect x="7" y="10" width="2" height="1" fill="#0b0c10" />
+          <rect x="9" y="11" width="1" height="1" fill="#0b0c10" />
+        `;
+        extraSVG = `
+          <g class="sweat-drop">
+            <rect x="14" y="3" width="2" height="3" fill="#5ce1e6" />
+            <rect x="14" y="2" width="1" height="1" fill="#ffffff" />
+          </g>
+        `;
+      } else if (mood === 'dizzy') {
+        eyesSVG = `
+          <rect x="4" y="7" width="1" height="1" fill="#0b0c10" />
+          <rect x="5" y="8" width="1" height="1" fill="#0b0c10" />
+          <rect x="4" y="9" width="1" height="1" fill="#0b0c10" />
+          <rect x="11" y="7" width="1" height="1" fill="#0b0c10" />
+          <rect x="10" y="8" width="1" height="1" fill="#0b0c10" />
+          <rect x="11" y="9" width="1" height="1" fill="#0b0c10" />
+        `;
+        mouthSVG = `
+          <rect x="7" y="10" width="2" height="2" fill="#0b0c10" />
+        `;
+      }
+
+      return `
+        <svg viewBox="0 0 16 16" width="${size}" height="${size}" shape-rendering="crispEdges" class="block drop-shadow-[0_2px_0_rgba(11,12,16,0.75)]">
+          <rect x="4" y="2" width="8" height="1" fill="#0b0c10" />
+          <rect x="2" y="3" width="2" height="1" fill="#0b0c10" />
+          <rect x="12" y="3" width="2" height="1" fill="#0b0c10" />
+          <rect x="1" y="4" width="1" height="9" fill="#0b0c10" />
+          <rect x="14" y="4" width="1" height="9" fill="#0b0c10" />
+          <rect x="2" y="13" width="12" height="1" fill="#0b0c10" />
+
+          <rect x="4" y="3" width="8" height="1" fill="${bodyLite}" />
+          <rect x="2" y="4" width="12" height="9" fill="${bodyMain}" />
+          <rect x="4" y="5" width="8" height="6" fill="${coreFill}" />
+          <rect x="2" y="11" width="12" height="2" fill="${bodyDark}" />
+
+          <rect x="3" y="4" width="3" height="1" fill="#ffffff" opacity="0.85" />
+          <rect x="3" y="5" width="1" height="2" fill="#ffffff" opacity="0.85" />
+
+          <g class="${mood === 'happy' ? 'slime-eyes' : ''}">
+            ${eyesSVG}
+          </g>
+          ${mouthSVG}
+
+          <rect x="2" y="9" width="2" height="1" fill="#ff7ba9" />
+          <rect x="12" y="9" width="2" height="1" fill="#ff7ba9" />
+          ${extraSVG}
+        </svg>
+      `;
+    }
+
+    /**
+     * 16x16 Pixel-Art Bumblebee ('Buzzy') with flapping translucent wings
+     */
+    function getBuzzyBeeSVG(size = 24) {
+      return `
+        <svg viewBox="0 0 16 16" width="${size}" height="${size}" shape-rendering="crispEdges" class="block drop-shadow-[0_2px_0_rgba(11,12,16,0.65)]">
+          <g class="bee-wings">
+            <rect x="5" y="2" width="3" height="3" fill="#d9f4ff" opacity="0.9" />
+            <rect x="9" y="2" width="3" height="3" fill="#bae6fd" opacity="0.85" />
+            <rect x="6" y="1" width="2" height="1" fill="#ffffff" />
+          </g>
+          <rect x="2" y="4" width="1" height="2" fill="#0b0c10" />
+          <rect x="4" y="4" width="1" height="2" fill="#0b0c10" />
+          <rect x="2" y="6" width="11" height="6" fill="#0b0c10" />
+          <rect x="3" y="7" width="3" height="4" fill="#ffd84d" />
+          <rect x="6" y="7" width="2" height="4" fill="#4a2c11" />
+          <rect x="8" y="7" width="2" height="4" fill="#F2C438" />
+          <rect x="10" y="7" width="2" height="4" fill="#4a2c11" />
+          <rect x="13" y="8" width="2" height="2" fill="#0b0c10" />
+          <rect x="3" y="8" width="1" height="2" fill="#0b0c10" />
+          <rect x="3" y="8" width="1" height="1" fill="#ffffff" />
+          <rect x="4" y="10" width="1" height="1" fill="#ff7ba9" />
+        </svg>
+      `;
+    }
+
+    /**
+     * 16x16 Pixel-Art Baby Chick ('Peep')
+     */
+    function getPeepChickSVG(size = 24) {
+      return `
+        <svg viewBox="0 0 16 16" width="${size}" height="${size}" shape-rendering="crispEdges" class="block drop-shadow-[0_2px_0_rgba(11,12,16,0.75)]">
+          <rect x="7" y="2" width="2" height="1" fill="#ffe66d" />
+          <rect x="5" y="3" width="6" height="1" fill="#0b0c10" />
+          <rect x="4" y="4" width="8" height="4" fill="#ffe047" />
+          <rect x="3" y="8" width="10" height="4" fill="#F2C438" />
+          <rect x="5" y="4" width="4" height="2" fill="#fff394" />
+          <rect x="4" y="8" width="3" height="3" fill="#d99b16" />
+          <rect x="9" y="5" width="1" height="2" fill="#0b0c10" />
+          <rect x="8" y="7" width="1" height="1" fill="#ff7ba9" />
+          <rect x="12" y="6" width="2" height="2" fill="#f97316" />
+          <rect x="5" y="12" width="2" height="2" fill="#ea580c" />
+          <rect x="9" y="12" width="2" height="2" fill="#ea580c" />
+        </svg>
+      `;
+    }
+
+    /**
+     * Mini 8x8 Pixel Collectibles (Gold Coin, Heart, 4-Point Star, Sparkle)
+     */
+    function getMiniCollectibleSVG(kind = 'coin', size = 14) {
+      if (kind === 'coin') {
+        return `
+          <svg viewBox="0 0 8 8" width="${size}" height="${size}" shape-rendering="crispEdges">
+            <rect x="2" y="0" width="4" height="8" fill="#0b0c10" />
+            <rect x="1" y="1" width="6" height="6" fill="#0b0c10" />
+            <rect x="2" y="1" width="4" height="6" fill="#F2C438" />
+            <rect x="2" y="1" width="2" height="2" fill="#FFF4B8" />
+            <rect x="3" y="2" width="1" height="4" fill="#B58616" />
+          </svg>
+        `;
+      }
+      if (kind === 'heart') {
+        return `
+          <svg viewBox="0 0 8 8" width="${size}" height="${size}" shape-rendering="crispEdges">
+            <rect x="1" y="1" width="2" height="1" fill="#ff5e8e" />
+            <rect x="5" y="1" width="2" height="1" fill="#ff5e8e" />
+            <rect x="0" y="2" width="8" height="2" fill="#ff5e8e" />
+            <rect x="1" y="2" width="1" height="1" fill="#ffb8ce" />
+            <rect x="1" y="4" width="6" height="1" fill="#e03165" />
+            <rect x="2" y="5" width="4" height="1" fill="#e03165" />
+            <rect x="3" y="6" width="2" height="1" fill="#b81d4b" />
+          </svg>
+        `;
+      }
+      if (kind === 'star') {
+        return `
+          <svg viewBox="0 0 8 8" width="${size}" height="${size}" shape-rendering="crispEdges">
+            <rect x="3" y="0" width="2" height="8" fill="#FFE27A" />
+            <rect x="0" y="3" width="8" height="2" fill="#FFE27A" />
+            <rect x="2" y="2" width="4" height="4" fill="#FFF4B8" />
+            <rect x="3" y="3" width="2" height="2" fill="#FFFFFF" />
+          </svg>
+        `;
+      }
+      return `
+        <svg viewBox="0 0 8 8" width="${size}" height="${size}" shape-rendering="crispEdges">
+          <rect x="3" y="1" width="2" height="6" fill="#62A83B" />
+          <rect x="2" y="2" width="4" height="4" fill="#94E864" />
+          <rect x="3" y="2" width="1" height="2" fill="#ffffff" />
+        </svg>
+      `;
+    }
+
+    /**
+     * Interactive Burst Particles & Mascot Petting Handler
+     */
+    function spawnBurstAtElement(el, count = 8, kinds = ['heart', 'star', 'coin']) {
+      if (!appState.settings.cuteAnimations) return;
+      const frame = document.getElementById('phoneFrame');
+      const layer = document.getElementById('burstParticlesLayer');
+      if (!frame || !layer || !el) return;
+
+      const frameRect = frame.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const originX = elRect.left - frameRect.left + elRect.width / 2;
+      const originY = elRect.top - frameRect.top + elRect.height / 2;
+
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'burst-particle';
+        const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.45 - 0.22);
+        const dist = 28 + Math.random() * 38;
+        const tx = Math.round(Math.cos(angle) * dist) + 'px';
+        const ty = Math.round(Math.sin(angle) * dist - 20) + 'px';
+        p.style.setProperty('--tx', tx);
+        p.style.setProperty('--ty', ty);
+        p.style.left = `${Math.round(originX - 7)}px`;
+        p.style.top = `${Math.round(originY - 7)}px`;
+
+        const kind = kinds[i % kinds.length];
+        p.innerHTML = getMiniCollectibleSVG(kind, 13);
+        layer.appendChild(p);
+        setTimeout(() => p.remove(), 760);
+      }
+    }
+
+    function petMascot(event, mascotName) {
+      if (event) event.stopPropagation();
+      playPixelSound('cute');
+      if (event && event.currentTarget) {
+        spawnBurstAtElement(event.currentTarget, 8, ['heart', 'star', 'coin']);
+      }
+      const messages = {
+        Pip: 'Pip the Slime loves trivia! +1 Love',
+        Buzzy: 'Buzzy dropped golden star dust!',
+        Peep: 'Peep chirps: Ready to craft!'
+      };
+      showPixelToast(messages[mascotName] || 'Cute pixel boost!');
+    }
+
+    /**
+     * Ambient Background Collectibles Loop
+     */
+    let ambientTimer = null;
+    function startAmbientCollectiblesLoop() {
+      if (ambientTimer) clearInterval(ambientTimer);
+      ambientTimer = setInterval(() => {
+        if (!appState.settings.cuteAnimations) return;
+        const layer = document.getElementById('ambientParticlesLayer');
+        if (!layer || layer.childElementCount > 7) return;
+
+        const kinds = ['coin', 'heart', 'star', 'sparkle'];
+        const kind = kinds[Math.floor(Math.random() * kinds.length)];
+        const item = document.createElement('div');
+        item.className = 'ambient-collectible';
+        const leftPct = 8 + Math.floor(Math.random() * 84);
+        const topPct = 36 + Math.floor(Math.random() * 54);
+        const dur = (4.4 + Math.random() * 2.2).toFixed(1);
+
+        item.style.left = `${leftPct}%`;
+        item.style.top = `${topPct}%`;
+        item.style.animationDuration = `${dur}s`;
+        item.innerHTML = getMiniCollectibleSVG(kind, 11);
+
+        layer.appendChild(item);
+        setTimeout(() => item.remove(), parseFloat(dur) * 1000 + 100);
+      }, 1450);
+    }
+
+    /**
+     * Navigation Controller
+     */
+    function navigateTo(screenName) {
+      if (appState.quiz.timerInterval) {
+        clearInterval(appState.quiz.timerInterval);
+        appState.quiz.timerInterval = null;
+      }
+
+      appState.currentScreen = screenName;
+      updateStudioChrome();
+      renderCurrentScreen();
+
+      if (screenName === 'quiz') {
+        startQuizTimer();
+      }
+    }
+
+    function updateStudioChrome() {
+      const titles = {
+        start: 'TriviaCraft · Start',
+        settings: 'TriviaCraft · Settings',
+        login: 'TriviaCraft · Login',
+        decks: 'TriviaCraft · My Decks',
+        quiz: 'TriviaCraft · Quiz'
+      };
+      document.getElementById('studioCaption').textContent = titles[appState.currentScreen] || 'TriviaCraft';
+
+      document.querySelectorAll('.step-pill').forEach((pill) => {
+        const isActive = pill.getAttribute('data-nav') === appState.currentScreen;
+        if (isActive) {
+          pill.className =
+            'step-pill px-2.5 py-0.5 font-vt text-base rounded border border-[#F2C438] bg-[#262836] text-[#F2C438] cursor-pointer';
+        } else {
+          pill.className =
+            'step-pill px-2.5 py-0.5 font-vt text-base rounded border border-[#2a2c38] bg-[#181922] text-gray-400 hover:text-gray-200 cursor-pointer';
+        }
+      });
+    }
+
+    /**
+     * In-Phone Pixel Toast Helper (Zero browser alert/confirm popups)
+     */
+    let toastTimeout = null;
+    function showPixelToast(message) {
+      const toast = document.getElementById('pixelToast');
+      const text = document.getElementById('pixelToastText');
+      text.textContent = message;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2100);
+    }
+
+    /**
+     * ==========================================================================
+     * SCREEN 1: START SCREEN ('TriviaCraft · Start')
+     * - Top utility row: 'V1.0' badge on left + beveled 'SETTINGS' gear button on top right
+     * - Centerpiece: New TriviaCraft Treasure Chest Logo + stacked 'TRIVIA' / 'CRAFT' title
+     * - Subtitle: 'Build decks. Beat the clock. Level up.'
+     * - Starter deck status card ('3 DECKS · READY TO PLAY') with Peep the Baby Chick
+     * - Side-by-side bottom action row: 'START' (left, green) & 'SETTINGS' (right, gray)
+     * ==========================================================================
+     */
+    function renderStartScreen() {
+      const totalDecks = appState.decks.length;
+      const totalQuestions = appState.decks.reduce((acc, d) => acc + d.count, 0);
+
+      return `
+        <div class="screen-animate flex-1 flex flex-col justify-between px-5 pt-3.5 pb-5">
+          <!-- Top Utility Row: V1.0 Badge (Left) + Beveled SETTINGS Gear Button (Top Right) -->
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-1 bg-[#13141B] border border-[#2d3040] font-pixel text-[8px] text-[#9A9EAE]">
+              V1.0
+            </span>
+
+            <button
+              type="button"
+              onclick="playPixelSound('click'); navigateTo('settings')"
+              class="pixel-btn pixel-btn-gray px-2.5 py-1.5 text-[8px]"
+              aria-label="Open Settings"
+            >
+              ${getPixelGearSVG(11)}
+              <span>SETTINGS</span>
+            </button>
+          </div>
+
+          <!-- Centerpiece: Custom Pixel-Art Treasure Chest Logo + Stacked Title + Tagline -->
+          <div class="flex flex-col items-center text-center my-auto pt-1">
+            ${renderTreasureLogoBlock(false)}
+
+            <p class="font-vt text-[21px] leading-snug text-[#D4D7E3] mt-3 max-w-[290px]">
+              Build decks. Beat the clock. Level up.
+            </p>
+          </div>
+
+          <!-- Starter Deck Status Card with Waddling Peep the Baby Chick + Side-by-Side Action Row -->
+          <div class="space-y-3.5 mt-2">
+            <div class="pixel-card relative px-3.5 py-2.5 flex items-center justify-between">
+              <!-- Peep the Baby Chick perched cheerfully on top-right of the status card -->
+              <button
+                type="button"
+                onclick="petMascot(event, 'Peep')"
+                title="Tap Peep the Baby Chick!"
+                aria-label="Tap Peep the Baby Chick"
+                class="cutie-actor chick-waddle absolute -top-[18px] right-3 z-20 cursor-pointer bg-transparent border-0 p-0 focus:outline-none"
+              >
+                ${getPeepChickSVG(22)}
+              </button>
+
+              <div>
+                <div class="font-pixel text-[8px] text-[#62A83B]">
+                  ${totalDecks} DECKS &middot; READY TO PLAY
+                </div>
+                <div class="font-vt text-lg text-[#9A9EAE] leading-tight mt-0.5">
+                  ${totalQuestions} trivia cards loaded in your chest
+                </div>
+              </div>
+              <span class="font-pixel text-[8px] text-[#F2C438]">${appState.settings.questionTimer}S</span>
+            </div>
+
+            <!-- SIDE-BY-SIDE BOTTOM ACTION ROW: START (LEFT) & SETTINGS (RIGHT) -->
+            <div class="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onclick="playPixelSound('start'); spawnBurstAtElement(this, 8, ['coin', 'star']); navigateTo('login')"
+                class="pixel-btn pixel-btn-green py-3.5 px-3 text-[11px]"
+              >
+                <span>START</span>
+              </button>
+
+              <button
+                type="button"
+                onclick="playPixelSound('click'); navigateTo('settings')"
+                class="pixel-btn pixel-btn-gray py-3.5 px-3 text-[10px]"
+              >
+                ${getPixelGearSVG(13)}
+                <span>SETTINGS</span>
+              </button>
+            </div>
+
+            <div class="text-center font-pixel text-[7px] text-[#6E7282] pt-0.5">
+              TAP START TO ENTER OVERWORLD
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * ==========================================================================
+     * SCREEN 2: LOGIN SCREEN ('TriviaCraft · Login')
+     * - Smoothly opens when clicking 'START'
+     * - Top '← START' back button
+     * - Compact Treasure Chest emblem + 'TRIVIA CRAFT' title
+     * - Recessed dark pixel inputs for EMAIL & PASSWORD
+     * - Green beveled 'LOG IN' button & Gray beveled 'CREATE ACCOUNT' button
+     * ==========================================================================
+     */
+    function renderLoginScreen() {
+      const isSignUp = appState.authMode === 'signup';
+
+      return `
+        <div class="screen-animate flex-1 flex flex-col justify-between px-5 pt-3.5 pb-5">
+          <!-- Top Back Navigation Row -->
+          <div class="flex items-center justify-between">
+            <button
+              type="button"
+              onclick="playPixelSound('click'); navigateTo('start')"
+              class="pixel-btn pixel-btn-gray px-2.5 py-1.5 text-[8px]"
+            >
+              &larr; START
+            </button>
+            <span class="font-pixel text-[8px] text-[#9A9EAE]">
+              ${isSignUp ? 'NEW PLAYER' : 'PLAYER GATE'}
+            </span>
+          </div>
+
+          <!-- Compact Treasure Chest Emblem + Title -->
+          <div class="my-1">
+            ${renderTreasureLogoBlock(true)}
+            <p class="text-center font-vt text-lg text-[#9A9EAE] mt-1">
+              ${isSignUp ? 'Craft your adventurer profile' : 'Sign in to unlock your decks'}
+            </p>
+          </div>
+
+          <!-- Auth Form -->
+          <form onsubmit="handleAuthSubmit(event)" class="space-y-3">
+            <div>
+              <label for="emailInput" class="block font-pixel text-[8px] text-[#d0d3de] mb-1.5">
+                EMAIL
+              </label>
+              <input
+                id="emailInput"
+                type="email"
+                required
+                value="${appState.email}"
+                oninput="appState.email = this.value"
+                placeholder="you@overworld.com"
+                class="pixel-input"
+              />
+            </div>
+
+            <div>
+              <label for="passwordInput" class="block font-pixel text-[8px] text-[#d0d3de] mb-1.5">
+                PASSWORD
+              </label>
+              <input
+                id="passwordInput"
+                type="password"
+                required
+                placeholder="Enter your password"
+                class="pixel-input"
+              />
+            </div>
+
+            <div class="pt-1.5 space-y-2.5">
+              <button
+                type="submit"
+                class="pixel-btn pixel-btn-green w-full py-3.5 text-[10px]"
+              >
+                ${isSignUp ? 'CREATE & ENTER' : 'LOG IN'}
+              </button>
+
+              <button
+                type="button"
+                onclick="toggleAuthMode()"
+                class="pixel-btn pixel-btn-gray w-full py-3 text-[9px]"
+              >
+                ${isSignUp ? 'BACK TO LOG IN' : 'CREATE ACCOUNT'}
+              </button>
+            </div>
+          </form>
+
+          <!-- Footer Tagline -->
+          <div class="text-center space-y-1 pt-2">
+            <div class="font-pixel text-[7px] text-[#62A83B]">
+              YOUR NEXT ADVENTURE STARTS HERE
+            </div>
+            <div class="font-vt text-base text-[#6E7282]">
+              TRIVIACRAFT / V1.0
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleAuthMode() {
+      playPixelSound('click');
+      appState.authMode = appState.authMode === 'login' ? 'signup' : 'login';
+      renderCurrentScreen();
+    }
+
+    function handleAuthSubmit(event) {
+      event.preventDefault();
+      playPixelSound('start');
+      const greeting = appState.email ? appState.email.split('@')[0] : 'Adventurer';
+      showPixelToast(`Welcome back, ${greeting}!`);
+      navigateTo('decks');
+    }
+
+    /**
+     * ==========================================================================
+     * SCREEN 3: SETTINGS SCREEN ('TriviaCraft · Settings')
+     * - Interactive pixel toggles for:
+     *   1. Cute Pets & Animations (ON / OFF)
+     *   2. Sound Effects 8-Bit (ON / OFF)
+     *   3. Question Timer (10s / 15s / 20s)
+     *   4. Theme Mode (Overworld Dark / Nether Crimson)
+     * - Green beveled 'SAVE & RETURN' button back to Start
+     * ==========================================================================
+     */
+    function renderSettingsScreen() {
+      const { cuteAnimations, soundEffects, questionTimer, themeMode } = appState.settings;
+
+      return `
+        <div class="screen-animate flex-1 flex flex-col justify-between px-5 pt-4 pb-5">
+          <div>
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+              <h1 class="font-pixel text-[13px] text-[#F2C438]">SETTINGS</h1>
+              <button
+                type="button"
+                onclick="playPixelSound('click'); navigateTo('start')"
+                class="pixel-btn pixel-btn-gray px-2.5 py-1.5 text-[8px]"
+              >
+                &larr; BACK
+              </button>
+            </div>
+
+            <!-- Settings Toggles Stack -->
+            <div class="space-y-3">
+              <!-- 1. Cute Pets & Animations -->
+              <div class="pixel-card p-3 flex items-center justify-between">
+                <div>
+                  <div class="font-pixel text-[8px] text-white">CUTE PETS &amp; FX</div>
+                  <div class="font-vt text-lg text-[#9A9EAE] leading-none mt-1">
+                    Pip, Buzzy, Peep &amp; chest sparkles
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onclick="toggleSetting('cuteAnimations')"
+                  class="pixel-btn ${cuteAnimations ? 'pixel-btn-green' : 'pixel-btn-gray'} px-3 py-2 text-[9px] min-w-[68px]"
+                >
+                  ${cuteAnimations ? 'ON' : 'OFF'}
+                </button>
+              </div>
+
+              <!-- 2. Sound Effects 8-Bit -->
+              <div class="pixel-card p-3 flex items-center justify-between">
+                <div>
+                  <div class="font-pixel text-[8px] text-white">SOUND EFFECTS</div>
+                  <div class="font-vt text-lg text-[#9A9EAE] leading-none mt-1">
+                    Retro 8-bit clicks &amp; coin chimes
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onclick="toggleSetting('soundEffects')"
+                  class="pixel-btn ${soundEffects ? 'pixel-btn-green' : 'pixel-btn-gray'} px-3 py-2 text-[9px] min-w-[68px]"
+                >
+                  ${soundEffects ? 'ON' : 'OFF'}
+                </button>
+              </div>
+
+              <!-- 3. Question Timer (10s / 15s / 20s) -->
+              <div class="pixel-card p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="font-pixel text-[8px] text-white">QUESTION TIMER</div>
+                  <span class="font-pixel text-[8px] text-[#F2C438]">${questionTimer} SEC</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                  ${[10, 15, 20]
+                    .map(
+                      (sec) => `
+                    <button
+                      type="button"
+                      onclick="setQuestionTimer(${sec})"
+                      class="pixel-btn ${questionTimer === sec ? 'pixel-btn-yellow' : 'pixel-btn-gray'} py-2 text-[9px]"
+                    >
+                      ${sec}S
+                    </button>
+                  `
+                    )
+                    .join('')}
+                </div>
+              </div>
+
+              <!-- 4. Theme Mode (Overworld Dark / Nether Crimson) -->
+              <div class="pixel-card p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="font-pixel text-[8px] text-white">THEME MODE</div>
+                  <span class="font-pixel text-[8px] text-[#62A83B]">
+                    ${themeMode === 'overworld' ? 'OVERWORLD' : 'NETHER'}
+                  </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onclick="setThemeMode('overworld')"
+                    class="pixel-btn ${themeMode === 'overworld' ? 'pixel-btn-green' : 'pixel-btn-gray'} py-2 text-[8px]"
+                  >
+                    OVERWORLD
+                  </button>
+                  <button
+                    type="button"
+                    onclick="setThemeMode('nether')"
+                    class="pixel-btn ${themeMode === 'nether' ? 'pixel-btn-red' : 'pixel-btn-gray'} py-2 text-[8px]"
+                  >
+                    NETHER
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save & Return Button -->
+          <button
+            type="button"
+            onclick="playPixelSound('success'); showPixelToast('Settings saved!'); navigateTo('start')"
+            class="pixel-btn pixel-btn-green w-full py-3.5 text-[10px] mt-4"
+          >
+            SAVE &amp; RETURN
+          </button>
+        </div>
+      `;
+    }
+
+    function toggleSetting(key) {
+      appState.settings[key] = !appState.settings[key];
+      const frame = document.getElementById('phoneFrame');
+      if (key === 'cuteAnimations') {
+        frame.classList.toggle('cute-disabled', !appState.settings.cuteAnimations);
+      }
+      playPixelSound('click');
+      renderCurrentScreen();
+    }
+
+    function setQuestionTimer(seconds) {
+      appState.settings.questionTimer = seconds;
+      playPixelSound('click');
+      renderCurrentScreen();
+    }
+
+    function setThemeMode(mode) {
+      appState.settings.themeMode = mode;
+      const frame = document.getElementById('phoneFrame');
+      frame.classList.toggle('theme-nether', mode === 'nether');
+      renderTopBannerSVG();
+      playPixelSound('click');
+      renderCurrentScreen();
+    }
+
+    /**
+     * ==========================================================================
+     * SCREEN 4: MY DECKS SCREEN ('TriviaCraft · My Decks')
+     * - Opens upon clicking 'LOG IN'
+     * - Shows 'MY DECKS' header, 'LOG OUT' button, interactive deck cards
+     *   (Android Basics, World Wonders, Science Lab) with working PLAY, EDIT, DELETE
+     * - '+ CREATE DECK' yellow beveled button with modal
+     * ==========================================================================
+     */
+    function renderDecksScreen() {
+      const deckCardsHTML = appState.decks
+        .map(
+          (deck) => `
+          <article class="pixel-card border-t-[3px] border-t-[#62A83B] p-3">
+            <div class="flex items-start gap-3">
+              <div class="${deck.badgeClass} w-10 h-10 shrink-0 flex items-center justify-center font-pixel text-sm text-white">
+                ${deck.letter}
+              </div>
+              <div class="flex-1 min-w-0">
+                <h2 class="font-vt text-[22px] leading-none text-white truncate">
+                  ${deck.title}
+                </h2>
+                <p class="font-vt text-base text-[#9A9EAE] leading-tight mt-0.5">
+                  ${deck.category} &middot; ${deck.count} questions
+                </p>
+                <p class="font-vt text-base text-[#F2C438] leading-tight mt-0.5">
+                  Best score: ${deck.bestScore}
+                </p>
+              </div>
+            </div>
+
+            <!-- Deck Action Buttons: PLAY, EDIT, DELETE -->
+            <div class="grid grid-cols-3 gap-2 mt-2.5">
+              <button
+                type="button"
+                onclick="startDeckQuiz('${deck.id}')"
+                class="pixel-btn pixel-btn-green py-2 text-[8px]"
+              >
+                PLAY
+              </button>
+              <button
+                type="button"
+                onclick="openEditDeckModal('${deck.id}')"
+                class="pixel-btn pixel-btn-gray py-2 text-[8px]"
+              >
+                EDIT
+              </button>
+              <button
+                type="button"
+                onclick="promptDeleteDeck('${deck.id}')"
+                class="pixel-btn pixel-btn-red py-2 text-[8px]"
+              >
+                DELETE
+              </button>
+            </div>
+          </article>
+        `
+        )
+        .join('');
+
+      return `
+        <div class="screen-animate flex-1 flex flex-col justify-between px-4 pt-3.5 pb-4">
+          <div>
+            <!-- Header Row -->
+            <div class="flex items-center justify-between mb-1">
+              <h1 class="font-pixel text-[13px] text-[#F2C438]">MY DECKS</h1>
+              <button
+                type="button"
+                onclick="playPixelSound('click'); navigateTo('start')"
+                class="pixel-btn pixel-btn-gray px-2.5 py-1.5 text-[8px]"
+              >
+                LOG OUT
+              </button>
+            </div>
+            <p class="font-vt text-lg text-[#9A9EAE] mb-3">
+              ${appState.decks.length} DECKS &middot; READY TO PLAY
+            </p>
+
+            <!-- Deck Cards List -->
+            <div class="space-y-3">
+              ${
+                deckCardsHTML ||
+                `<div class="pixel-card p-4 text-center font-vt text-xl text-gray-400">
+                  Your chest is empty! Create a deck below.
+                </div>`
+              }
+            </div>
+          </div>
+
+          <!-- + CREATE DECK CTA -->
+          <button
+            type="button"
+            onclick="openCreateDeckModal()"
+            class="pixel-btn pixel-btn-yellow w-full py-3.5 text-[10px] mt-3"
+          >
+            + CREATE DECK
+          </button>
+        </div>
+      `;
+    }
+
+    function openCreateDeckModal() {
+      playPixelSound('click');
+      appState.editingDeckId = null;
+      document.getElementById('deckModalTitle').textContent = 'NEW DECK';
+      document.getElementById('deckNameInput').value = '';
+      document.getElementById('deckCategoryInput').value = '';
+      document.getElementById('deckModal').classList.remove('hidden');
+    }
+
+    function openEditDeckModal(deckId) {
+      playPixelSound('click');
+      const deck = appState.decks.find((d) => d.id === deckId);
+      if (!deck) return;
+      appState.editingDeckId = deckId;
+      document.getElementById('deckModalTitle').textContent = 'EDIT DECK';
+      document.getElementById('deckNameInput').value = deck.title;
+      document.getElementById('deckCategoryInput').value = deck.category;
+      document.getElementById('deckModal').classList.remove('hidden');
+    }
+
+    function closeDeckModal() {
+      playPixelSound('click');
+      document.getElementById('deckModal').classList.add('hidden');
+    }
+
+    function saveDeckFromModal() {
+      const nameVal = document.getElementById('deckNameInput').value.trim();
+      const catVal = document.getElementById('deckCategoryInput').value.trim() || 'General';
+      if (!nameVal) {
+        showPixelToast('Enter a deck name first!');
+        return;
+      }
+
+      if (appState.editingDeckId) {
+        const deck = appState.decks.find((d) => d.id === appState.editingDeckId);
+        if (deck) {
+          deck.title = nameVal;
+          deck.category = catVal;
+          deck.letter = nameVal.charAt(0).toUpperCase();
+        }
+        showPixelToast('Deck updated!');
+      } else {
+        const badgeOptions = ['pixel-block-green', 'pixel-block-blue', 'pixel-block-purple', 'pixel-block-orange'];
+        const badgeClass = badgeOptions[appState.decks.length % badgeOptions.length];
+        appState.decks.push({
+          id: 'deck-' + Date.now(),
+          letter: nameVal.charAt(0).toUpperCase(),
+          badgeClass,
+          title: nameVal,
+          category: catVal,
+          count: 5,
+          bestScore: 0
+        });
+        showPixelToast('New deck crafted!');
+      }
+
+      playPixelSound('success');
+      document.getElementById('deckModal').classList.add('hidden');
+      renderCurrentScreen();
+    }
+
+    function promptDeleteDeck(deckId) {
+      playPixelSound('click');
+      const deck = appState.decks.find((d) => d.id === deckId);
+      if (!deck) return;
+      appState.pendingDeleteId = deckId;
+      document.getElementById('deleteConfirmMessage').textContent = `Delete "${deck.title}" from My Decks?`;
+      document.getElementById('deleteConfirmModal').classList.remove('hidden');
+    }
+
+    function closeDeleteConfirm() {
+      playPixelSound('click');
+      appState.pendingDeleteId = null;
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+    }
+
+    function confirmDeleteDeck() {
+      if (appState.pendingDeleteId) {
+        appState.decks = appState.decks.filter((d) => d.id !== appState.pendingDeleteId);
+        appState.pendingDeleteId = null;
+        playPixelSound('wrong');
+        showPixelToast('Deck deleted.');
+      }
+      document.getElementById('deleteConfirmModal').classList.add('hidden');
+      renderCurrentScreen();
+    }
+
+    /**
+     * ==========================================================================
+     * SCREEN 5: QUIZ SCREEN ('TriviaCraft · Quiz')
+     * - Opens upon clicking 'PLAY' on any deck
+     * - 'QUESTION X/Y' and 'SCORE' header
+     * - 10-block green pixel 'TIME LEFT' countdown bar
+     * - Question display box + beveled A/B/C/D answer buttons
+     * - Pip the Slime reacting dynamically (cheering, sweating, wobbling)
+     * - Completion summary screen
+     * ==========================================================================
+     */
+    function startDeckQuiz(deckId) {
+      const deck = appState.decks.find((d) => d.id === deckId) || appState.decks[0];
+      const bank = questionBanks[deck.id] || questionBanks.android;
+
+      appState.quiz.activeDeckId = deck.id;
+      appState.quiz.activeDeckTitle = deck.title;
+      appState.quiz.activeQuestions = bank;
+      appState.quiz.totalQuestions = bank.length;
+      appState.quiz.questionIndex = 0;
+      appState.quiz.score = 0;
+      appState.quiz.timeLeftBlocks = 10;
+      appState.quiz.selectedOption = null;
+      appState.quiz.lastAnswerCorrect = null;
+
+      playPixelSound('start');
+      navigateTo('quiz');
+    }
+
+    function startQuizTimer() {
+      if (appState.quiz.timerInterval) clearInterval(appState.quiz.timerInterval);
+
+      // Ensure activeQuestions is populated if user jumped via step bar
+      if (!appState.quiz.activeQuestions.length) {
+        appState.quiz.activeQuestions = questionBanks.android;
+        appState.quiz.totalQuestions = questionBanks.android.length;
+      }
+
+      const stepMs = Math.max(450, Math.round((appState.settings.questionTimer * 1000) / 10));
+      appState.quiz.timerInterval = setInterval(() => {
+        if (appState.currentScreen !== 'quiz') {
+          clearInterval(appState.quiz.timerInterval);
+          return;
+        }
+        if (appState.quiz.selectedOption !== null) return;
+
+        if (appState.quiz.timeLeftBlocks > 0) {
+          appState.quiz.timeLeftBlocks -= 1;
+          renderCurrentScreen();
+        } else {
+          // Time ran out on current question
+          handleQuizAnswer(null);
+        }
+      }, stepMs);
+    }
+
+    function handleQuizAnswer(optionKey) {
+      if (appState.quiz.selectedOption !== null) return;
+      const q = appState.quiz.activeQuestions[appState.quiz.questionIndex];
+      if (!q) return;
+
+      appState.quiz.selectedOption = optionKey || 'TIMEOUT';
+      const isCorrect = optionKey === q.correct;
+      appState.quiz.lastAnswerCorrect = isCorrect;
+
+      if (isCorrect) {
+        appState.quiz.score += 20;
+        playPixelSound('success');
+        const container = document.getElementById('screenContainer');
+        spawnBurstAtElement(container, 9, ['coin', 'heart', 'star']);
+      } else {
+        playPixelSound('wrong');
+      }
+
+      renderCurrentScreen();
+
+      setTimeout(() => {
+        if (appState.currentScreen !== 'quiz') return;
+        appState.quiz.questionIndex += 1;
+        appState.quiz.selectedOption = null;
+        appState.quiz.lastAnswerCorrect = null;
+        appState.quiz.timeLeftBlocks = 10;
+
+        if (appState.quiz.questionIndex >= appState.quiz.totalQuestions) {
+          if (appState.quiz.timerInterval) clearInterval(appState.quiz.timerInterval);
+          // Save best score on deck
+          const deck = appState.decks.find((d) => d.id === appState.quiz.activeDeckId);
+          if (deck && appState.quiz.score > deck.bestScore) {
+            deck.bestScore = appState.quiz.score;
+          }
+        }
+        renderCurrentScreen();
+      }, 1050);
+    }
+
+    function renderQuizScreen() {
+      if (!appState.quiz.activeQuestions.length) {
+        appState.quiz.activeQuestions = questionBanks.android;
+        appState.quiz.totalQuestions = questionBanks.android.length;
+      }
+
+      // Completion Summary Screen
+      if (appState.quiz.questionIndex >= appState.quiz.totalQuestions) {
+        return `
+          <div class="screen-animate flex-1 flex flex-col items-center justify-between px-5 py-6 text-center">
+            <div class="w-full flex items-center justify-between">
+              <span class="font-pixel text-[8px] text-[#9A9EAE]">${appState.quiz.activeDeckTitle.toUpperCase()}</span>
+              <span class="font-pixel text-[8px] text-[#62A83B]">COMPLETE</span>
+            </div>
+
+            <div class="my-auto flex flex-col items-center">
+              <div class="cutie-actor slime-cheer mb-3">
+                ${getPipSlimeSVG('cheer', 48)}
+              </div>
+              ${getTreasureChestLogoSVG(126, 100)}
+              <h2 class="font-pixel text-[14px] text-[#F2C438] mt-3">QUEST CLEARED!</h2>
+              <p class="font-vt text-2xl text-white mt-1">
+                FINAL SCORE: <span class="text-[#62A83B]">${appState.quiz.score}</span> / ${appState.quiz.totalQuestions * 20}
+              </p>
+              <p class="font-vt text-lg text-[#9A9EAE] mt-1">
+                Pip the Slime celebrates your trivia loot!
+              </p>
+            </div>
+
+            <div class="w-full space-y-2.5">
+              <button
+                type="button"
+                onclick="startDeckQuiz('${appState.quiz.activeDeckId}')"
+                class="pixel-btn pixel-btn-green w-full py-3.5 text-[10px]"
+              >
+                PLAY AGAIN
+              </button>
+              <button
+                type="button"
+                onclick="playPixelSound('click'); navigateTo('decks')"
+                class="pixel-btn pixel-btn-gray w-full py-3 text-[9px]"
+              >
+                BACK TO MY DECKS
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      const q = appState.quiz.activeQuestions[appState.quiz.questionIndex];
+      const qNum = appState.quiz.questionIndex + 1;
+      const totalQ = appState.quiz.totalQuestions;
+
+      // Determine Pip the Slime's live reaction mood & animation
+      let pipMood = 'happy';
+      let pipAnim = 'slime-hop';
+      let pipCaption = 'Pip is cheering you on!';
+      if (appState.quiz.selectedOption !== null) {
+        if (appState.quiz.lastAnswerCorrect) {
+          pipMood = 'cheer';
+          pipAnim = 'slime-cheer';
+          pipCaption = 'AWESOME! +20 POINTS!';
+        } else {
+          pipMood = 'dizzy';
+          pipAnim = 'slime-wobble';
+          pipCaption = appState.quiz.selectedOption === 'TIMEOUT' ? 'OUT OF TIME!' : 'OOPS! KEEP GOING!';
+        }
+      } else if (appState.quiz.timeLeftBlocks <= 3) {
+        pipMood = 'nervous';
+        pipAnim = 'slime-nervous';
+        pipCaption = 'HURRY! CLOCK LOW!';
+      }
+
+      // 10-block pixel countdown bar
+      let timerBlocksHTML = '';
+      for (let i = 0; i < 10; i++) {
+        const filled = i < appState.quiz.timeLeftBlocks;
+        const lowColor = appState.quiz.timeLeftBlocks <= 3 ? 'bg-[#e85c4c]' : 'bg-[#62A83B]';
+        timerBlocksHTML += `
+          <div class="h-4 flex-1 border border-[#0b0c10] ${filled ? lowColor : 'bg-[#121319]'}"></div>
+        `;
+      }
+
+      const optionsHTML = q.options
+        .map((opt) => {
+          let stateClass = '';
+          if (appState.quiz.selectedOption !== null) {
+            if (opt.key === q.correct) {
+              stateClass = 'selected-correct';
+            } else if (opt.key === appState.quiz.selectedOption) {
+              stateClass = 'selected-wrong';
+            }
+          }
+
+          return `
+            <button
+              type="button"
+              onclick="handleQuizAnswer('${opt.key}')"
+              class="quiz-option ${stateClass}"
+            >
+              <span class="${opt.color} w-7 h-7 shrink-0 flex items-center justify-center font-pixel text-[10px] text-white">
+                ${opt.key}
+              </span>
+              <span class="font-vt text-[21px] leading-none text-white">
+                ${opt.label}
+              </span>
+            </button>
+          `;
+        })
+        .join('');
+
+      return `
+        <div class="screen-animate flex-1 flex flex-col justify-between px-4 pt-3.5 pb-4">
+          <div>
+            <!-- Top Question & Score Header -->
+            <div class="flex items-center justify-between mb-2.5">
+              <span class="font-pixel text-[9px] text-[#F2C438]">
+                QUESTION ${qNum}/${totalQ}
+              </span>
+              <span class="font-pixel text-[9px] text-[#F2C438]">
+                SCORE ${appState.quiz.score}
+              </span>
+            </div>
+
+            <!-- 10-Block Time Left Countdown Bar -->
+            <div class="mb-3">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-pixel text-[7px] text-[#d0d3de]">TIME LEFT</span>
+                <button
+                  type="button"
+                  onclick="playPixelSound('click'); navigateTo('decks')"
+                  class="font-pixel text-[7px] text-[#9A9EAE] hover:text-white cursor-pointer bg-transparent border-0 p-0"
+                >
+                  QUIT &times;
+                </button>
+              </div>
+              <div class="flex gap-1">${timerBlocksHTML}</div>
+            </div>
+
+            <!-- Question Display Box with Gold Top Accent -->
+            <div class="pixel-card border-t-[3px] border-t-[#F2C438] p-3.5 mb-3">
+              <p class="font-vt text-[23px] leading-snug text-white">
+                ${q.text}
+              </p>
+            </div>
+
+            <!-- Beveled A / B / C / D Answer Buttons -->
+            <div class="space-y-2">
+              ${optionsHTML}
+            </div>
+          </div>
+
+          <!-- Bottom Live Mascot Reaction Footer -->
+          <div class="flex items-center justify-between pt-2.5 mt-2 border-t border-[#282a38]">
+            <div class="flex items-center gap-2.5">
+              <div class="cutie-actor ${pipAnim}">
+                ${getPipSlimeSVG(pipMood, 26)}
+              </div>
+              <span class="font-pixel text-[7px] ${
+                appState.quiz.selectedOption !== null
+                  ? appState.quiz.lastAnswerCorrect
+                    ? 'text-[#62A83B]'
+                    : 'text-[#e85c4c]'
+                  : 'text-[#62A83B]'
+              }">
+                ${pipCaption}
+              </span>
+            </div>
+            <span class="font-vt text-base text-[#6E7282]">${appState.quiz.activeDeckTitle}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * Master Screen Renderer
+     */
+    function renderCurrentScreen() {
+      const container = document.getElementById('screenContainer');
+      if (!container) return;
+
+      switch (appState.currentScreen) {
+        case 'start':
+          container.innerHTML = renderStartScreen();
+          break;
+        case 'settings':
+          container.innerHTML = renderSettingsScreen();
+          break;
+        case 'login':
+          container.innerHTML = renderLoginScreen();
+          break;
+        case 'decks':
+          container.innerHTML = renderDecksScreen();
+          break;
+        case 'quiz':
+          container.innerHTML = renderQuizScreen();
+          break;
+        default:
+          container.innerHTML = renderStartScreen();
+      }
+    }
+
+    /**
+     * Bootstrap Prototype on Window Load
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTopBannerSVG();
+      updateStudioChrome();
+      renderCurrentScreen();
+      startAmbientCollectiblesLoop();
+    });
+  </script>
+</body>
+</html>
